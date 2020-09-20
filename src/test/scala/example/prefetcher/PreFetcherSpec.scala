@@ -72,6 +72,7 @@ object PreFetcherSpec extends DefaultRunnableSpec {
         assert(initialSupplierCall)(equalTo(0)) &&
         assert(secondSupplierCall)(equalTo(1))
     },
+
     testM("Correctly do an initial fetch from a supplier")(
       for {
         prefetcher          <- Prefetcher.withInitialFetch(-42, incrementer, 1.second).provideCustomLayer(logEnv)
@@ -84,6 +85,7 @@ object PreFetcherSpec extends DefaultRunnableSpec {
         assert(initialSupplierCall)(equalTo(-40)) &&
         assert(secondSupplierCall)(equalTo(-39))
     ),
+
     testM("Correctly do an initial fetch from a supplier that ignores the previous value") {
       val incr = new Incr().supplier
       for {
