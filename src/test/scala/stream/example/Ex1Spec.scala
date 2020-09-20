@@ -1,13 +1,12 @@
 package stream.example
 
-import zio.stream.{Sink, ZSink}
-import zio.test.DefaultRunnableSpec
-import zio.test._
-import Assertion._
+import zio.stream.Sink
+import zio.test.Assertion._
+import zio.test.{DefaultRunnableSpec, _}
 
 object Ex1Spec extends DefaultRunnableSpec {
   val suite1 = suite("timings")(
-    testM("first attempt"){
+    testM("first attempt") {
       val stream = Ex1.myStream.take(30)
       val sink = Sink.collectAll[SimpleEvent]
       for {

@@ -2,13 +2,10 @@ package stream.example
 
 import java.time.Instant
 
-import zio.{Schedule, ZIO}
+import zio.ZIO
 import zio.clock._
-import zio.stream.ZStream
-import zio.duration._
 import zio.console._
-
-import scala.concurrent.duration.Duration
+import zio.stream.ZStream
 
 object Ex1 {
   def myStream =
@@ -18,6 +15,8 @@ object Ex1 {
         evt = SimpleEvent(at.toInstant)
         _ <- putStrLn(s"at $evt")
       } yield evt)
-      //.schedule(Schedule.spaced(10.second))
+
+  //.schedule(Schedule.spaced(10.second))
 }
+
 case class SimpleEvent(at: Instant)
