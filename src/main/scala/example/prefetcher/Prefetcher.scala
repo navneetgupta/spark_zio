@@ -31,7 +31,7 @@ object Prefetcher {
    scheduleUpdate(valueRef, supplier, updateInterval, 0.seconds)
      .delay(updateInterval)
 
-  def withIntitalFetch[T](
+  def withInitialFetch[T](
                          zero: T,
                          supplier: ZIO[T, Throwable, T],
                          updateInterval: Duration

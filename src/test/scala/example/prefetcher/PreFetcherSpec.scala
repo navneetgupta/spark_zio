@@ -47,20 +47,56 @@ object PreFetcherSpec extends DefaultRunnableSpec {
 
     testM("Correctly handle the errors")(
       for {
-        prefetcher <-
+        prefetcher  <-
           Prefetcher.withInitialValue(-42, new FailingCounter().supplier, 1.second).provideCustomLayer(logEnv)
-        imidiatelyHeld <- prefetcher.currentValueRef.get
+        immediatelyHeld <- prefetcher.currentValueRef.get
         _ <- TestClock.adjust(100.millis)
         initialSupplierCall <- prefetcher.currentValueRef.get
         _ <- TestClock.adjust(1.second)
         secondSupplierCall <- prefetcher.currentValueRef.get
-      } yield assert(imidiatelyHeld)(equalTo(-42)) &&
+      } yield assert(immediatelyHeld)(equalTo(-42)) &&
         assert(initialSupplierCall)(equalTo(-42)) &&
         assert(secondSupplierCall)(equalTo(1))
     ),
 
-
-
+    testM("Correctly work with a supplier that ignores the previous value") {
+      val incr = new Incr().supplier
+      for {
+        prefetcher          <- Prefetcher.withInitialValue(-42, incr, 1.second, 100.millis).provideCustomLayer(logEnv)
+        immediatelyHeld     <- prefetcher.currentValueRef.get
+        _                   <- TestClock.adjust(100.millis)
+        initialSupplierCall <- prefetcher.currentValueRef.get
+        _                   <- TestClock.adjust(1.second)
+        secondSupplierCall  <- prefetcher.currentValueRef.get
+      } yield assert(immediatelyHeld)(equalTo(-42)) &&
+        assert(initialSupplierCall)(equalTo(0)) &&
+        assert(secondSupplierCall)(equalTo(1))
+    },
+    testM("Correctly do an initial fetch from a supplier")(
+      for {
+        prefetcher          <- Prefetcher.withInitialFetch(-42, incrementer, 1.second).provideCustomLayer(logEnv)
+        immediatelyHeld     <- prefetcher.currentValueRef.get
+        _                   <- TestClock.adjust(1.second)
+        initialSupplierCall <- prefetcher.currentValueRef.get
+        _                   <- TestClock.adjust(1.second)
+        secondSupplierCall  <- prefetcher.currentValueRef.get
+      } yield assert(immediatelyHeld)(equalTo(-41)) &&
+        assert(initialSupplierCall)(equalTo(-40)) &&
+        assert(secondSupplierCall)(equalTo(-39))
+    ),
+    testM("Correctly do an initial fetch from a supplier that ignores the previous value") {
+      val incr = new Incr().supplier
+      for {
+        prefetcher          <- Prefetcher.withInitialFetch(-42, incr, 1.second).provideCustomLayer(logEnv)
+        immediatelyHeld     <- prefetcher.currentValueRef.get
+        _                   <- TestClock.adjust(1.second)
+        initialSupplierCall <- prefetcher.currentValueRef.get
+        _                   <- TestClock.adjust(1.second)
+        secondSupplierCall  <- prefetcher.currentValueRef.get
+      } yield assert(immediatelyHeld)(equalTo(0)) &&
+        assert(initialSupplierCall)(equalTo(1)) &&
+        assert(secondSupplierCall)(equalTo(2))
+    }
   )
 
   // clean incrementer
