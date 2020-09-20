@@ -1,9 +1,9 @@
 package example.prefetcher
 
-import java.util.function.Supplier
-
 import zio._
 import zio.duration.{Duration, _}
+import zio.logging._
+
 case class Prefetcher[T](
                           prefetchedValueRef: Ref[T],
                           val updateFiber: Fiber[Throwable, Any]
