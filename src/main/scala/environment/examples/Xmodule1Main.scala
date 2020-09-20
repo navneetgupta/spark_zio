@@ -12,12 +12,12 @@ object Xmodule1Main extends App {
     _ <- IO.fail("Failing")
   } yield 0)
     .catchAll(e => console.putStrLn(s"Application run failed:  $e").as(1))
-  private val program = logic.provideSomeLayer[Console](
-    new XModule1.Live {
-      override val xInstance: X = X()
-    }
-  )
+//  private val program = logic.provideSomeLayer[Console](
+//    new XModule1.Live {
+//      override val xInstance: X = X()
+//    }
+//  )
 
-  def run(args: List[String]) = program.exitCode
+  def run(args: List[String]) = ??? //program.exitCode
 
 }

@@ -18,7 +18,7 @@ object Prefetcher {
                            supplier: ZIO[T, Throwable, T],
                            updateInterval: Duration,
                            initialWait: Duration = 0.seconds
-                         ): Unit =
+                         ) =
     for {
       initialValueRef <- Ref.make(initialValue)
       updateFiber <- scheduleUpdate(initialValueRef, supplier, updateInterval, initialWait).fork
@@ -35,7 +35,7 @@ object Prefetcher {
                          zero: T,
                          supplier: ZIO[T, Throwable, T],
                          updateInterval: Duration
-                         ): Unit =
+                         ) =
     for {
       initalValue <- supplier.provide(zero)
       initialValueRef <- Ref.make(initalValue)
@@ -55,7 +55,9 @@ object Prefetcher {
                                    valueRef: Ref[T],
                                    supplier: ZIO[T, Throwable, T]) =
     for {
+      _ <- log.info("Running supplier to updated pre-fetched value...")
       previousVal <- valueRef.get
+      _ <- log.info("Prefetched value of ref initially is " + previousVal)
       newVal <- supplier
         .provide(previousVal)
         .onError(err =>
@@ -63,6 +65,7 @@ object Prefetcher {
             "Evaluation of the supplier failed, prefetched value not updated: " +
               err.failureOption.map(_.getMessage).getOrElse("")
           ))
-      updatedRef <- valueRef.set(newVal)
+      _ <- valueRef.set(newVal)
+      _ <- log.debug("Successfully update pre-fetched value.")
     } yield ()
 }
