@@ -2,6 +2,7 @@ package integration.postgres
 
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import zio.{Has, ZManaged, blocking}
+import zio.blocking._
 
 /**
  * ZIO’s ZManaged to wrap the creation and disposal of the container,
@@ -22,11 +23,11 @@ object TestContainer {
 
   def postgres(imageName: Option[String] = Some("postgres")) =
     ZManaged.make {
-      blocking.effectBlocking {
+      effectBlocking {
         val container = new PostgreSQLContainer(
           dockerImageNameOverride = imageName)
         container.start
         container
       }.orDie
-    }(container => blocking.effectBlocking(container.stop()).orDie).toLayer
+    }(container => effectBlocking(container.stop()).orDie).toLayer
 }

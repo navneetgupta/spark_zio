@@ -6,7 +6,7 @@ import zio.logging._
 
 case class Prefetcher[T](
                           prefetchedValueRef: Ref[T],
-                          val updateFiber: Fiber[Throwable, Any]
+                          updateFiber: Fiber[Throwable, Any]
                         ) {
   val currentValueRef = prefetchedValueRef.readOnly
 }
